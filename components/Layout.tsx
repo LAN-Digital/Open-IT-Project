@@ -1,13 +1,29 @@
 import React, { ReactNode } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
+import { getAuth, signOut } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 type Props = {
   children?: ReactNode
   title?: string
 }
 
-const Layout = ({ children, title = 'This is the default title' }: Props) => (
+
+
+const Layout = ({ children, title = 'This is the default title' }: Props) =>
+{
+  const auth = getAuth();
+
+  async function logOut() {
+    signOut(auth).then(() => {
+      // Sign-out successful.
+    }).catch((error) => {
+      // An error happened.
+    });
+  }
+  const [user] = useAuthState(auth);
+return (
   <div>
     <Head>
       <title>{title}</title>
@@ -27,7 +43,11 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
         <Link href="/users">
           <a>Users List</a>
         </Link>{' '}
-        | <a href="/api/users">Users API</a>
+        {user &&
+        <button onClick={logOut} className='bg-red-600 text-gray-200'>
+          Izloguj se
+        </button>
+        }
       </nav>
     </header>
     {children}
@@ -37,5 +57,6 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
     </footer>
   </div>
 )
+      }
 
 export default Layout
